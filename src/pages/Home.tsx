@@ -2,8 +2,12 @@ import "../assets/css/index.css";
 import Navbar from "../components/Navbar.tsx";
 import { Link } from "react-router-dom";
 import { useScrollAnimation } from "../hooks/useScrollAnimation";
+import { useParallax } from "../hooks/useParallax";
 
 function Home() {
+  // Parallax effect for hero section
+  const { offset } = useParallax({ speed: 0.3 });
+
   // Scroll animation refs for each section
   const quickAccessRef = useScrollAnimation();
   const mayorRef = useScrollAnimation();
@@ -18,7 +22,15 @@ function Home() {
       <Navbar />
 
       {/* Hero Section - Balanced Modern Professional */}
-      <section className="relative w-full h-[calc(100vh-4rem)] bg-cover bg-center bg-[url('/hero-image.jpg')] overflow-hidden">
+      <section className="relative w-full h-[calc(100vh-4rem)] overflow-hidden">
+        {/* Parallax Background Image */}
+        <div
+          className="parallax-bg bg-[url('/hero-image.jpg')]"
+          style={{
+            transform: `translateY(${offset}px)`,
+          }}
+        ></div>
+
         {/* Enhanced Multi-layer Overlay */}
         <div className="absolute inset-0 bg-black/40"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/50"></div>
@@ -38,19 +50,19 @@ function Home() {
         </div>
 
         {/* Main Content - Center */}
-        <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
+        <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-24">
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white drop-shadow-2xl mb-6 tracking-tight animate-fadeInUp">
             Municipality of Tuy, Batangas
           </h1>
           <div
-            className="w-32 h-1 bg-yellow-400 mb-6 rounded-full animate-scaleIn"
+            className="w-1/3 h-1 bg-yellow-400 mb-6 rounded-full animate-scaleIn"
             style={{ animationDelay: "0.3s" }}
           ></div>
           <p
             className="text-2xl md:text-3xl lg:text-4xl text-white drop-shadow-lg mb-6 italic font-light animate-fadeInUp"
             style={{ animationDelay: "0.5s" }}
           >
-            The Pearl of Balayan Bay
+            Home of the Kambingan Festival
           </p>
           <p
             className="text-lg md:text-xl text-white/90 drop-shadow-lg font-light max-w-2xl animate-fadeIn"
