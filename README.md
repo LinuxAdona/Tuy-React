@@ -56,6 +56,7 @@ npm run build
 ```
 
 This command:
+
 1. Runs TypeScript compilation (`tsc -b`)
 2. Builds the project using Vite
 3. Outputs files to the `dist/` directory
@@ -149,7 +150,3 @@ When contributing to this project:
 2. Run `npm run lint` before committing
 3. Ensure `npm run build` completes without errors
 4. Test your changes in development mode first
-
-## License
-
-[Add your license information here]
