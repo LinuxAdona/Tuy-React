@@ -21,6 +21,9 @@ const Navbar = () => {
 
   const navigate = useNavigate();
 
+  // Check if in dev mode
+  const isDevMode = window.location.pathname.startsWith('/dev/');
+
   // Search function
   const performSearch = (query: string): SearchItem[] => {
     if (!query.trim()) return [];
@@ -348,8 +351,31 @@ const Navbar = () => {
             </ul>
           </div>
 
-          {/* Right: Search + Mobile Toggle */}
+          {/* Right: Dev Mode Indicator + Search + Mobile Toggle */}
           <div className="flex items-center h-full">
+            {/* Dev Mode Indicator & Logout (only show if in dev mode) */}
+            {isDevMode && (
+              <>
+                {/* Dev Mode Badge */}
+                <div className="hidden md:flex items-center gap-2 px-4 h-full bg-blue-600/20 border-l border-r border-blue-400/30">
+                  <i className="fas fa-code text-blue-300 text-sm"></i>
+                  <span className="text-xs font-semibold text-blue-100 uppercase tracking-wide">
+                    Developer Mode
+                  </span>
+                </div>
+                
+                {/* Logout Button */}
+                <a
+                  href="/dev/logout.php"
+                  className="px-4 xl:px-6 h-full flex items-center gap-2 bg-red-600/80 hover:bg-red-600 transition-all duration-150 cursor-pointer"
+                  aria-label="Logout from developer mode"
+                >
+                  <i className="fas fa-sign-out-alt text-sm"></i>
+                  <span className="hidden lg:inline text-sm font-medium">Logout</span>
+                </a>
+              </>
+            )}
+
             {/* Search Component */}
             <div className="relative h-full" ref={searchRef}>
               {!isSearchOpen ? (

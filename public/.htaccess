@@ -1,0 +1,320 @@
+# ================================================
+# .htaccess for Municipality of Tuy React App
+# Hostgator cPanel Deployment Configuration
+# ================================================
+
+# ================================================
+# MOD_SECURITY EXCEPTIONS FOR LOGIN FORM
+# ================================================
+# Disable Mod_Security for the dev login verification endpoint
+# This prevents false positives when submitting passwords with special characters
+# Security is maintained through bcrypt password hashing and rate limiting in PHP
+<IfModule mod_security.c>
+    # Disable specific Mod_Security rules that commonly block login forms
+    SecRuleRemoveById 950001  # SQL Injection detection
+    SecRuleRemoveById 973300  # XSS Attack detection
+    SecRuleRemoveById 973301  # XSS Filter - Category 1
+    SecRuleRemoveById 981173  # SQL Character Anomaly Detection
+    SecRuleRemoveById 981243  # SQL Injection Detected
+    SecRuleRemoveById 981245  # Basic SQL Authentication Bypass
+    
+    # Completely disable Mod_Security for the password verification script
+    # This is safe because:
+    # - Passwords are hashed with bcrypt (no plain text storage)
+    # - Rate limiting prevents brute force (5 attempts, 15min lockout)
+    # - No database queries or user input is echoed
+    # - Script only checks password against pre-configured hash
+    <LocationMatch "/dev/verify\.php">
+        SecRuleEngine Off
+    </LocationMatch>
+</IfModule>
+
+# Enable Rewrite Engine for URL routing
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # ================================================
+    # HTTPS REDIRECT (Optional - Uncomment if SSL is configured)
+    # ================================================
+    # Force HTTPS - Redirect all HTTP traffic to HTTPS
+    # Uncomment the lines below if you have an SSL certificate installed
+    
+    # RewriteCond %{HTTPS} off
+    # RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    # RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+    # ================================================
+    # DEV MODE ACCESS WITH PASSWORD PROTECTION
+    # ================================================
+    # Developer access at /dev/* requires authentication
+    # Login page: /dev/login.php
+    # Logout: /dev/logout.php
+    
+    # Allow direct access to PHP authentication scripts
+    RewriteCond %{REQUEST_URI} ^/dev/login\.php$ [OR]
+    RewriteCond %{REQUEST_URI} ^/dev/verify\.php$ [OR]
+    RewriteCond %{REQUEST_URI} ^/dev/logout\.php$
+    RewriteRule ^ - [L]
+    
+    # Check if accessing /dev/* routes (but not the auth scripts)
+    RewriteCond %{REQUEST_URI} ^/dev/
+    RewriteCond %{REQUEST_URI} !^/dev/login\.php$
+    RewriteCond %{REQUEST_URI} !^/dev/verify\.php$
+    RewriteCond %{REQUEST_URI} !^/dev/logout\.php$
+    
+    # Check if NOT authenticated (no valid session cookie)
+    RewriteCond %{HTTP_COOKIE} !dev_session_authenticated=true
+    
+    # Redirect to login page with original URL for redirect-back
+    RewriteRule ^dev/(.*)$ /dev/login.php?redirect=/%{REQUEST_URI} [L,QSA]
+
+    # ================================================
+    # SERVE REACT APP FOR AUTHENTICATED /dev/* ROUTES
+    # ================================================
+    # If user is authenticated and accessing /dev/*, serve the React app
+    # This must come BEFORE the maintenance mode rules to prevent redirect loop
+    
+    # Check if accessing /dev/* routes
+    RewriteCond %{REQUEST_URI} ^/dev/
+    
+    # Check if NOT a PHP auth script (already handled above)
+    RewriteCond %{REQUEST_URI} !^/dev/login\.php$
+    RewriteCond %{REQUEST_URI} !^/dev/verify\.php$
+    RewriteCond %{REQUEST_URI} !^/dev/logout\.php$
+    
+    # Check if authenticated (has valid session cookie)
+    RewriteCond %{HTTP_COOKIE} dev_session_authenticated=true
+    
+    # Skip if it's an actual file (CSS, JS, images, etc.)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    
+    # Skip if it's an actual directory
+    RewriteCond %{REQUEST_FILENAME} !-d
+    
+    # Serve the React app (index.html will handle routing)
+    RewriteRule . /index.html [L]
+
+    # ================================================
+    # MAINTENANCE MODE FOR PUBLIC ROUTES
+    # ================================================
+    # Show under-construction.html for all routes EXCEPT /dev/*
+    # This keeps the full site hidden from public while allowing dev access
+    
+    # Skip if accessing /dev/* routes (already handled above)
+    RewriteCond %{REQUEST_URI} !^/dev/
+    
+    # Skip the under-construction page itself
+    RewriteCond %{REQUEST_URI} !^/under-construction\.html$
+    
+    # Skip assets folder
+    RewriteCond %{REQUEST_URI} !^/assets/
+    
+    # Skip static files (images, fonts, etc.)
+    RewriteCond %{REQUEST_URI} !\.(png|jpg|jpeg|gif|svg|ico|css|js|woff|woff2|ttf|eot)$
+    
+    # Redirect all public routes to under-construction page
+    RewriteRule ^.*$ /under-construction.html [L]
+
+    # ================================================
+    # REACT ROUTER SPA SUPPORT (for /dev/* authenticated routes)
+    # ================================================
+    # For /dev/* routes with valid session, serve the React app
+    # This prevents 404 errors when users refresh pages or use direct URLs
+    
+    # Only apply to /dev/* routes
+    RewriteCond %{REQUEST_URI} ^/dev/
+    
+    # Skip rewrite for actual files (like images, CSS, JS)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    
+    # Skip rewrite for actual directories
+    RewriteCond %{REQUEST_FILENAME} !-d
+    
+    # Skip rewrite for symbolic links
+    RewriteCond %{REQUEST_FILENAME} !-l
+    
+    # Redirect /dev/* routes to index.html (React Router will handle)
+    RewriteRule . /index.html [L]
+</IfModule>
+
+# ================================================
+# PERFORMANCE OPTIMIZATION
+# ================================================
+
+# Enable Gzip Compression
+<IfModule mod_deflate.c>
+    # Compress HTML, CSS, JavaScript, Text, XML, JSON
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/atom+xml
+    AddOutputFilterByType DEFLATE image/svg+xml
+    
+    # Compress fonts
+    AddOutputFilterByType DEFLATE application/vnd.ms-fontobject
+    AddOutputFilterByType DEFLATE application/x-font-ttf
+    AddOutputFilterByType DEFLATE font/opentype
+    AddOutputFilterByType DEFLATE font/otf
+    AddOutputFilterByType DEFLATE font/ttf
+</IfModule>
+
+# Browser Caching
+<IfModule mod_expires.c>
+    ExpiresActive On
+    
+    # Images - cache for 1 year
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+    
+    # CSS and JavaScript - cache for 1 month
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType application/x-javascript "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    
+    # Fonts - cache for 1 year
+    ExpiresByType application/vnd.ms-fontobject "access plus 1 year"
+    ExpiresByType application/x-font-ttf "access plus 1 year"
+    ExpiresByType application/x-font-woff "access plus 1 year"
+    ExpiresByType application/font-woff "access plus 1 year"
+    ExpiresByType application/font-woff2 "access plus 1 year"
+    ExpiresByType font/opentype "access plus 1 year"
+    ExpiresByType font/ttf "access plus 1 year"
+    ExpiresByType font/otf "access plus 1 year"
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    
+    # HTML - cache for 1 hour
+    ExpiresByType text/html "access plus 1 hour"
+    
+    # Default - cache for 1 week
+    ExpiresDefault "access plus 1 week"
+</IfModule>
+
+# Cache-Control Headers
+<IfModule mod_headers.c>
+    # Images
+    <FilesMatch "\.(jpg|jpeg|png|gif|svg|webp|ico)$">
+        Header set Cache-Control "max-age=31536000, public, immutable"
+    </FilesMatch>
+    
+    # CSS and JavaScript
+    <FilesMatch "\.(css|js)$">
+        Header set Cache-Control "max-age=2592000, public"
+    </FilesMatch>
+    
+    # Fonts
+    <FilesMatch "\.(woff|woff2|ttf|otf|eot)$">
+        Header set Cache-Control "max-age=31536000, public, immutable"
+    </FilesMatch>
+    
+    # HTML
+    <FilesMatch "\.(html)$">
+        Header set Cache-Control "max-age=3600, public, must-revalidate"
+    </FilesMatch>
+</IfModule>
+
+# ================================================
+# SECURITY HEADERS
+# ================================================
+
+<IfModule mod_headers.c>
+    # Prevent MIME type sniffing
+    Header set X-Content-Type-Options "nosniff"
+    
+    # Prevent clickjacking
+    Header set X-Frame-Options "SAMEORIGIN"
+    
+    # Enable XSS protection
+    Header set X-XSS-Protection "1; mode=block"
+    
+    # Referrer Policy
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Remove X-Powered-By header (if PHP is used)
+    Header unset X-Powered-By
+</IfModule>
+
+# ================================================
+# ERROR PAGES (Optional)
+# ================================================
+# Uncomment and customize these if you create custom error pages
+
+# ErrorDocument 404 /404.html
+# ErrorDocument 403 /403.html
+# ErrorDocument 500 /500.html
+
+# ================================================
+# FILE ACCESS RESTRICTIONS
+# ================================================
+
+# Prevent access to hidden files (.git, .env, etc.)
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Prevent access to backup files
+<FilesMatch "\.(bak|backup|old|tmp|swp)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# ================================================
+# MIME TYPES (Ensure correct content types)
+# ================================================
+
+<IfModule mod_mime.c>
+    # JavaScript
+    AddType application/javascript js
+    AddType text/javascript js
+    
+    # JSON
+    AddType application/json json
+    
+    # PHP
+    AddType application/x-httpd-php php
+    
+    # Fonts
+    AddType application/font-woff woff
+    AddType application/font-woff2 woff2
+    AddType application/vnd.ms-fontobject eot
+    AddType application/x-font-ttf ttf
+    AddType font/opentype otf
+    
+    # Images
+    AddType image/svg+xml svg svgz
+    AddType image/webp webp
+    
+    # Video
+    AddType video/mp4 mp4
+    AddType video/webm webm
+</IfModule>
+
+# ================================================
+# CHARACTER ENCODING
+# ================================================
+
+# Set default charset to UTF-8
+AddDefaultCharset UTF-8
+<IfModule mod_mime.c>
+    AddCharset UTF-8 .html .css .js .xml .json .rss .atom .php
+</IfModule>
+
+# ================================================
+# END OF CONFIGURATION
+# ================================================

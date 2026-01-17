@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Municipality of Tuy, Batangas - Official Website Under Construction">
+    <meta name="keywords" content="Tuy, Batangas, Municipality, Philippines, Government">
+    <title>Under Construction - Municipality of Tuy, Batangas</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" 
+          integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" 
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            color: #1f2937;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+            padding: 60px 40px;
+            text-align: center;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .construction-icon {
+            font-size: 80px;
+            color: #01377d;
+            margin-bottom: 20px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #01377d;
+            margin-bottom: 15px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: #6b7280;
+            margin-bottom: 30px;
+            font-weight: 400;
+        }
+
+        .divider {
+            width: 120px;
+            height: 4px;
+            background: linear-gradient(90deg, #01377d 0%, #3b82f6 100%);
+            margin: 0 auto 30px;
+            border-radius: 2px;
+        }
+
+        .message {
+            font-size: 1.1rem;
+            color: #4b5563;
+            line-height: 1.7;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .contact-section {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .contact-section h2 {
+            font-size: 1.5rem;
+            color: #01377d;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            text-align: left;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .contact-item i {
+            color: #01377d;
+            font-size: 1.2rem;
+            margin-top: 3px;
+            min-width: 20px;
+        }
+
+        .contact-item-content h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 5px;
+        }
+
+        .contact-item-content p {
+            font-size: 0.9rem;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        .social-links {
+            margin-top: 30px;
+        }
+
+        .social-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #01377d;
+            color: white;
+            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(1, 55, 125, 0.3);
+        }
+
+        .social-btn:hover {
+            background: #012a5e;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(1, 55, 125, 0.4);
+        }
+
+        .social-btn i {
+            font-size: 1.2rem;
+        }
+
+        .launch-info {
+            background: linear-gradient(135deg, #01377d 0%, #012a5e 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .launch-info i {
+            margin-right: 8px;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e5e7eb;
+            color: #6b7280;
+            font-size: 0.95rem;
+        }
+
+        .footer strong {
+            color: #01377d;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 25px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .construction-icon {
+                font-size: 60px;
+            }
+
+            .logo {
+                width: 100px;
+                height: 100px;
+            }
+
+            .message {
+                font-size: 1rem;
+            }
+
+            .contact-section {
+                padding: 20px;
+            }
+
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .subtitle {
+                font-size: 0.9rem;
+            }
+
+            .social-btn {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Logo -->
+        <div class="logo">
+            <img src="/logo.png" alt="Municipality of Tuy Logo">
+        </div>
+
+        <!-- Construction Icon -->
+        <div class="construction-icon">
+            <i class="fas fa-tools"></i>
+        </div>
+
+        <!-- Main Heading -->
+        <h1>Website Under Construction</h1>
+        <p class="subtitle">Municipality of Tuy, Batangas</p>
+        
+        <!-- Divider -->
+        <div class="divider"></div>
+
+        <!-- Message -->
+        <p class="message">
+            We're currently updating our website to serve you better. Our new site will feature improved navigation, 
+            downloadable forms, transparency reports, latest announcements, and more. 
+            <strong>Please check back soon!</strong>
+        </p>
+
+        <!-- Launch Info -->
+        <div class="launch-info">
+            <i class="fas fa-calendar-alt"></i>
+            Coming Soon
+        </div>
+
+        <!-- Contact Section -->
+        <div class="contact-section">
+            <h2>
+                <i class="fas fa-info-circle"></i>
+                Contact Information
+            </h2>
+            <div class="contact-grid">
+                <div class="contact-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div class="contact-item-content">
+                        <h3>Address</h3>
+                        <p>Municipal Hall, Tuy, Batangas<br>Philippines 4200</p>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    <div class="contact-item-content">
+                        <h3>Phone</h3>
+                        <p>(043) XXX-XXXX</p>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <div class="contact-item-content">
+                        <h3>Email</h3>
+                        <p>info@tuy.gov.ph</p>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-clock"></i>
+                    <div class="contact-item-content">
+                        <h3>Office Hours</h3>
+                        <p>Monday - Friday<br>8:00 AM - 5:00 PM</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Social Links -->
+        <div class="social-links">
+            <a href="https://www.facebook.com/MunicipalityOfTuy" target="_blank" rel="noopener noreferrer" class="social-btn">
+                <i class="fab fa-facebook"></i>
+                Visit Our Facebook Page
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Municipality of Tuy, Batangas</strong></p>
+            <p>Your Gateway to Quality Local Governance</p>
+        </div>
+    </div>
+</body>
+</html>
