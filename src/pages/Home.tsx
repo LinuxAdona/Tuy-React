@@ -1,14 +1,104 @@
 import "../assets/css/index.css";
 import { Link } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
 import { useScrollAnimation } from "../hooks/useScrollAnimation";
 import { useParallax } from "../hooks/useParallax";
 
 import Navbar from "../components/Navbar.tsx";
 import Button from "../components/Button.tsx";
+import SkeletonCard from "../components/SkeletonCard";
+import { FACEBOOK_PAGE_URL } from "../data/facebookPosts";
+import { formatDate } from "../utils/dateFormat";
+import { useFacebookPosts } from "../hooks/useFacebookPosts";
 
 function Home() {
   // Parallax effect for hero section
   const { offset } = useParallax({ speed: 0.3 });
+
+  // Fetch Facebook posts dynamically
+  const { posts, loading } = useFacebookPosts();
+
+  // Carousel state and ref for horizontal scrolling
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  // Scroll to specific card
+  const scrollToCard = (index: number) => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    
+    const cards = container.children;
+    const card = cards[index] as HTMLElement;
+    if (card) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  };
+
+  // Arrow navigation
+  const scrollPrev = () => {
+    const newIndex = Math.max(0, activeIndex - 1);
+    scrollToCard(newIndex);
+  };
+
+  const scrollNext = () => {
+    const newIndex = Math.min(posts.length - 1, activeIndex + 1);
+    scrollToCard(newIndex);
+  };
+
+  // Track active card on scroll
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container || posts.length === 0) return;
+    
+    const handleScroll = () => {
+      const scrollLeft = container.scrollLeft;
+      const cardWidth = container.scrollWidth / posts.length;
+      const index = Math.round(scrollLeft / cardWidth);
+      setActiveIndex(Math.min(index, posts.length - 1));
+    };
+    
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, [posts.length]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') scrollPrev();
+      if (e.key === 'ArrowRight') scrollNext();
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeIndex, posts.length]);
+
+  // Center first card in carousel on initial mount only (no page scroll)
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    
+    // Wait for DOM to be fully ready and rendered
+    const timer = setTimeout(() => {
+      const firstCard = container.children[0] as HTMLElement;
+      if (!firstCard) return;
+      
+      // Calculate perfect center position
+      const containerWidth = container.clientWidth;
+      const cardWidth = firstCard.offsetWidth;
+      const cardOffsetLeft = firstCard.offsetLeft;
+      
+      // Center the card: card's left edge - half container + half card width
+      const scrollPosition = cardOffsetLeft - (containerWidth / 2) + (cardWidth / 2);
+      
+      // Smooth scroll only the container (not the page!)
+      container.scrollTo({
+        left: Math.max(0, scrollPosition), // Ensure no negative scroll
+        behavior: 'smooth'
+      });
+    }, 150); // Slightly longer delay for smooth render
+    
+    return () => clearTimeout(timer);
+  }, []); // Empty dependency array = runs only on mount
 
   // Scroll animation refs for each section
   const quickAccessRef = useScrollAnimation();
@@ -351,101 +441,145 @@ function Home() {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Announcement 1 */}
-            <div
-              className={`bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow scroll-animate-scale stagger-1 ${announcementsRef.isVisible ? "visible" : ""}`}
+          {/* Horizontal Scroll Carousel with Navigation */}
+          <div className="relative">
+            {/* Left gradient fade - positioned to not cover centered cards */}
+            <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-gray-50 via-gray-50/80 to-transparent pointer-events-none z-10 lg:block hidden" />
+            
+            {/* Right gradient fade - positioned to not cover centered cards */}
+            <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-gray-50 via-gray-50/80 to-transparent pointer-events-none z-10 lg:block hidden" />
+            
+            {/* Left arrow (desktop only) */}
+            {!loading && posts.length > 1 && (
+              <button
+                onClick={scrollPrev}
+                disabled={activeIndex === 0}
+                className="hidden lg:block absolute left-4 top-1/2 -translate-y-1/2 z-20 
+                           bg-white shadow-lg rounded-full p-3 w-12 h-12
+                           hover:bg-gray-50 hover:shadow-xl
+                           disabled:opacity-30 disabled:cursor-not-allowed
+                           transition-all duration-200 carousel-arrow"
+                aria-label="Previous announcement"
+              >
+                <i className="fas fa-chevron-left text-primary text-lg"></i>
+              </button>
+            )}
+            
+            {/* Right arrow (desktop only) */}
+            {!loading && posts.length > 1 && (
+              <button
+                onClick={scrollNext}
+                disabled={activeIndex === posts.length - 1}
+                className="hidden lg:block absolute right-4 top-1/2 -translate-y-1/2 z-20 
+                           bg-white shadow-lg rounded-full p-3 w-12 h-12
+                           hover:bg-gray-50 hover:shadow-xl
+                           disabled:opacity-30 disabled:cursor-not-allowed
+                           transition-all duration-200 carousel-arrow"
+                aria-label="Next announcement"
+              >
+                <i className="fas fa-chevron-right text-primary text-lg"></i>
+              </button>
+            )}
+            
+            {/* Horizontal scroll container - added scroll-padding for proper centering */}
+            <div 
+              ref={scrollContainerRef}
+              className="flex gap-8 overflow-x-auto snap-x snap-mandatory scroll-smooth hide-scrollbar"
+              style={{ 
+                scrollPaddingLeft: 'calc((100vw - min(80vw, 64rem)) / 2)',
+                scrollPaddingRight: 'calc((100vw - min(80vw, 64rem)) / 2)',
+                paddingLeft: 'calc((100vw - min(90vw, 64rem)) / 2)',
+                paddingRight: 'calc((100vw - min(90vw, 64rem)) / 2)'
+              }}
             >
-              <div className="bg-primary p-4">
-                <div className="flex items-center text-white">
-                  <i className="fas fa-calendar-alt mr-3 text-xl"></i>
-                  <span className="font-semibold">January 20, 2026</span>
-                </div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-800 mb-3">
-                  Public Consultation for 2026 Annual Investment Plan
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  The Municipality invites all stakeholders to participate in
-                  the consultation meeting for the 2026 Annual Investment Plan.
-                  Your input is valuable in shaping our community's future
-                  development.
-                </p>
-                <a
-                  href="#"
-                  className="text-primary font-semibold hover:text-primary-hover inline-flex items-center"
-                >
-                  Read More <i className="fas fa-arrow-right ml-2"></i>
-                </a>
-              </div>
+              {loading ? (
+                // Show skeleton loaders while fetching
+                <>
+                  <SkeletonCard />
+                  <SkeletonCard />
+                  <SkeletonCard />
+                  <SkeletonCard />
+                </>
+              ) : (
+                // Show actual posts (dynamic or fallback)
+                posts.map((post, index) => (
+                  <a
+                    key={post.id}
+                    href={post.postUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`flex-shrink-0 w-[90vw] md:w-[85vw] lg:w-[80vw] max-w-4xl snap-center flex flex-col bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow scroll-animate-scale stagger-${index + 1} ${announcementsRef.isVisible ? "visible" : ""}`}
+                  >
+                    {/* Date header */}
+                    <div className="bg-primary p-4">
+                      <div className="flex items-center text-white">
+                        <i className="fas fa-calendar-alt mr-3 text-xl"></i>
+                        <span className="font-semibold">
+                          {formatDate(post.date)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Optional post image */}
+                    {post.imageUrl && (
+                      <img
+                        src={post.imageUrl}
+                        alt={post.title}
+                        className="w-full h-48 object-cover"
+                        loading="lazy"
+                      />
+                    )}
+
+                    {/* Content - flex-grow pushes the link to bottom */}
+                    <div className="p-6 flex flex-col flex-grow">
+                      <h3 className="text-xl font-bold text-gray-800 mb-3">
+                        {post.title}
+                      </h3>
+                      <p className="text-gray-600 mb-4 flex-grow">
+                        {post.excerpt}
+                      </p>
+                      <span className="text-primary font-semibold hover:text-primary-hover inline-flex items-center mt-auto">
+                        Read More on Facebook{" "}
+                        <i className="fas fa-arrow-right ml-2"></i>
+                      </span>
+                    </div>
+                  </a>
+                ))
+              )}
             </div>
 
-            {/* Announcement 2 */}
-            <div
-              className={`bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow scroll-animate-scale stagger-2 ${announcementsRef.isVisible ? "visible" : ""}`}
-            >
-              <div className="bg-primary p-4">
-                <div className="flex items-center text-white">
-                  <i className="fas fa-calendar-alt mr-3 text-xl"></i>
-                  <span className="font-semibold">January 15, 2026</span>
-                </div>
+            {/* Navigation dots */}
+            {!loading && posts.length > 1 && (
+              <div className="flex justify-center gap-2 mt-8">
+                {posts.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => scrollToCard(index)}
+                    className={`h-2 rounded-full transition-all duration-300 nav-dot ${
+                      activeIndex === index 
+                        ? 'w-8 bg-primary' 
+                        : 'w-2 bg-gray-300 hover:bg-gray-400'
+                    }`}
+                    aria-label={`Go to announcement ${index + 1}`}
+                    aria-current={activeIndex === index ? 'true' : 'false'}
+                  />
+                ))}
               </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-800 mb-3">
-                  New Business Permit Application Process Now Available Online
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  Starting this month, business owners can now apply for permits
-                  through our streamlined online portal. Enjoy faster processing
-                  and convenient access to all business-related services.
-                </p>
-                <a
-                  href="#"
-                  className="text-primary font-semibold hover:text-primary-hover inline-flex items-center"
-                >
-                  Read More <i className="fas fa-arrow-right ml-2"></i>
-                </a>
-              </div>
-            </div>
-
-            {/* Announcement 3 */}
-            <div
-              className={`bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow scroll-animate-scale stagger-3 ${announcementsRef.isVisible ? "visible" : ""}`}
-            >
-              <div className="bg-primary p-4">
-                <div className="flex items-center text-white">
-                  <i className="fas fa-calendar-alt mr-3 text-xl"></i>
-                  <span className="font-semibold">January 10, 2026</span>
-                </div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-800 mb-3">
-                  Community Health and Wellness Program Schedule
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  Free health screening and wellness activities will be
-                  conducted in all barangays throughout February. Don't miss
-                  this opportunity to prioritize your health with our healthcare
-                  team.
-                </p>
-                <a
-                  href="#"
-                  className="text-primary font-semibold hover:text-primary-hover inline-flex items-center"
-                >
-                  Read More <i className="fas fa-arrow-right ml-2"></i>
-                </a>
-              </div>
-            </div>
+            )}
           </div>
 
           <div
             className={`text-center mt-12 scroll-animate stagger-4 ${announcementsRef.isVisible ? "visible" : ""}`}
           >
-            <Button variant="outline" to="/announcements" hasShadow={true}>
-              <i className="fa-solid fa-bullhorn mr-2"></i>View All
-              Announcements
-            </Button>
+            <a
+              href={FACEBOOK_PAGE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center px-6 py-3 bg-transparent border-2 border-primary text-primary rounded-lg font-semibold hover:bg-primary hover:text-white transition-all shadow-md hover:shadow-lg"
+            >
+              <i className="fa-brands fa-facebook mr-2"></i>
+              Visit Our Page
+            </a>
           </div>
         </div>
       </section>

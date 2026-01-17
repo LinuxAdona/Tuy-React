@@ -67,7 +67,7 @@ export interface ButtonProps
   extends
     VariantProps<typeof buttonVariants>,
     Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "className"> {
-  children: string;
+  children: React.ReactNode;
   to?: string;
   className?: string;
 }

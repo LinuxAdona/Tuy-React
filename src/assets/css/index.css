@@ -3,6 +3,9 @@
 @theme {
   --color-primary: #01377d;
   --color-primary-hover: #00306e;
+  
+  /* Enforce consistent font-family across all text */
+  --font-family-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 /* Hero Section Animations */
@@ -400,5 +403,78 @@
     transform: none !important;
     top: 0;
     height: 100%;
+  }
+}
+
+/* ========================================
+   Horizontal Scroll Carousel Styles
+   ======================================== */
+
+/* Hide scrollbar but keep functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Opera */
+}
+
+/* Smooth snap scrolling */
+.snap-x {
+  scroll-snap-type: x mandatory;
+}
+
+.snap-center {
+  scroll-snap-align: center;
+}
+
+/* Arrow button hover effects */
+.carousel-arrow {
+  transition: all 0.2s ease;
+}
+
+.carousel-arrow:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.carousel-arrow:active {
+  transform: scale(0.95);
+}
+
+/* Navigation dot animations */
+.nav-dot {
+  transition: all 0.3s ease;
+}
+
+/* Gradient fade pointer events fix */
+.gradient-fade {
+  pointer-events: none;
+}
+
+.gradient-fade > button {
+  pointer-events: auto;
+}
+
+/* Accessibility: Focus visible for keyboard navigation */
+.carousel-arrow:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.nav-dot:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .snap-x {
+    scroll-behavior: auto;
+  }
+  
+  .scroll-smooth {
+    scroll-behavior: auto !important;
   }
 }
