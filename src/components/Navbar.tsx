@@ -179,7 +179,7 @@ const Navbar = () => {
             <div className="h-full flex items-center">
               <img
                 className="mt-2 h-28 w-28 ms-8 absolute top-0 left-0"
-                src="/logo.png"
+                src="{import.meta.env.VITE_BASE_PATH}/logo.png"
                 alt="Tuy Logo"
               />
             </div>

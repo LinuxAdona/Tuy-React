@@ -26,7 +26,7 @@ import ContactUs from "./pages/ContactUs.tsx";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <AuthProvider>
-      <BrowserRouter basename="/dev">
+      <BrowserRouter basename={import.meta.env.VITE_BASE_PATH}>
         <Routes>
           {/* Public Route - Login */}
           <Route path="/login" element={<Login />} />

@@ -26,11 +26,15 @@ function Home() {
   const scrollToCard = (index: number) => {
     const container = scrollContainerRef.current;
     if (!container) return;
-    
+
     const cards = container.children;
     const card = cards[index] as HTMLElement;
     if (card) {
-      card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      card.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "center",
+      });
     }
   };
 
@@ -49,54 +53,55 @@ function Home() {
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container || posts.length === 0) return;
-    
+
     const handleScroll = () => {
       const scrollLeft = container.scrollLeft;
       const cardWidth = container.scrollWidth / posts.length;
       const index = Math.round(scrollLeft / cardWidth);
       setActiveIndex(Math.min(index, posts.length - 1));
     };
-    
-    container.addEventListener('scroll', handleScroll);
-    return () => container.removeEventListener('scroll', handleScroll);
+
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
   }, [posts.length]);
 
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') scrollPrev();
-      if (e.key === 'ArrowRight') scrollNext();
+      if (e.key === "ArrowLeft") scrollPrev();
+      if (e.key === "ArrowRight") scrollNext();
     };
-    
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [activeIndex, posts.length]);
 
   // Center first card in carousel on initial mount only (no page scroll)
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
-    
+
     // Wait for DOM to be fully ready and rendered
     const timer = setTimeout(() => {
       const firstCard = container.children[0] as HTMLElement;
       if (!firstCard) return;
-      
+
       // Calculate perfect center position
       const containerWidth = container.clientWidth;
       const cardWidth = firstCard.offsetWidth;
       const cardOffsetLeft = firstCard.offsetLeft;
-      
+
       // Center the card: card's left edge - half container + half card width
-      const scrollPosition = cardOffsetLeft - (containerWidth / 2) + (cardWidth / 2);
-      
+      const scrollPosition =
+        cardOffsetLeft - containerWidth / 2 + cardWidth / 2;
+
       // Smooth scroll only the container (not the page!)
       container.scrollTo({
         left: Math.max(0, scrollPosition), // Ensure no negative scroll
-        behavior: 'smooth'
+        behavior: "smooth",
       });
     }, 150); // Slightly longer delay for smooth render
-    
+
     return () => clearTimeout(timer);
   }, []); // Empty dependency array = runs only on mount
 
@@ -303,7 +308,7 @@ function Home() {
               >
                 <img
                   className="w-64 h-64 rounded-full shrink-0 object-cover border-4 border-primary/20"
-                  src="/mayor-photo.jpg"
+                  src="/dev/mayor-photo.jpg"
                   alt="Municipal Mayor"
                 />
                 <div className="text-center">
@@ -445,10 +450,10 @@ function Home() {
           <div className="relative">
             {/* Left gradient fade - positioned to not cover centered cards */}
             <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-gray-50 via-gray-50/80 to-transparent pointer-events-none z-10 lg:block hidden" />
-            
+
             {/* Right gradient fade - positioned to not cover centered cards */}
             <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-gray-50 via-gray-50/80 to-transparent pointer-events-none z-10 lg:block hidden" />
-            
+
             {/* Left arrow (desktop only) */}
             {!loading && posts.length > 1 && (
               <button
@@ -464,7 +469,7 @@ function Home() {
                 <i className="fas fa-chevron-left text-primary text-lg"></i>
               </button>
             )}
-            
+
             {/* Right arrow (desktop only) */}
             {!loading && posts.length > 1 && (
               <button
@@ -480,16 +485,16 @@ function Home() {
                 <i className="fas fa-chevron-right text-primary text-lg"></i>
               </button>
             )}
-            
+
             {/* Horizontal scroll container - added scroll-padding for proper centering */}
-            <div 
+            <div
               ref={scrollContainerRef}
               className="flex gap-8 overflow-x-auto snap-x snap-mandatory scroll-smooth hide-scrollbar"
-              style={{ 
-                scrollPaddingLeft: 'calc((100vw - min(80vw, 64rem)) / 2)',
-                scrollPaddingRight: 'calc((100vw - min(80vw, 64rem)) / 2)',
-                paddingLeft: 'calc((100vw - min(90vw, 64rem)) / 2)',
-                paddingRight: 'calc((100vw - min(90vw, 64rem)) / 2)'
+              style={{
+                scrollPaddingLeft: "calc((100vw - min(80vw, 64rem)) / 2)",
+                scrollPaddingRight: "calc((100vw - min(80vw, 64rem)) / 2)",
+                paddingLeft: "calc((100vw - min(90vw, 64rem)) / 2)",
+                paddingRight: "calc((100vw - min(90vw, 64rem)) / 2)",
               }}
             >
               {loading ? (
@@ -556,12 +561,12 @@ function Home() {
                     key={index}
                     onClick={() => scrollToCard(index)}
                     className={`h-2 rounded-full transition-all duration-300 nav-dot ${
-                      activeIndex === index 
-                        ? 'w-8 bg-primary' 
-                        : 'w-2 bg-gray-300 hover:bg-gray-400'
+                      activeIndex === index
+                        ? "w-8 bg-primary"
+                        : "w-2 bg-gray-300 hover:bg-gray-400"
                     }`}
                     aria-label={`Go to announcement ${index + 1}`}
-                    aria-current={activeIndex === index ? 'true' : 'false'}
+                    aria-current={activeIndex === index ? "true" : "false"}
                   />
                 ))}
               </div>

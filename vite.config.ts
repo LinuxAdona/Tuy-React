@@ -6,7 +6,7 @@ import { resolve } from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: "/dev/",
+  base: import.meta.env.VITE_BASE_PATH,
   plugins: [
     react(),
     tailwindcss(),
@@ -16,7 +16,10 @@ export default defineConfig({
         server.middlewares.use((req, res, next) => {
           // Serve under-construction.html at root
           if (req.url === "/") {
-            const htmlPath = resolve(__dirname, "public/under-construction.html");
+            const htmlPath = resolve(
+              __dirname,
+              "public/under-construction.html",
+            );
             try {
               const html = readFileSync(htmlPath, "utf-8");
               res.setHeader("Content-Type", "text/html");
